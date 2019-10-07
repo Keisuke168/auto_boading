@@ -64,7 +64,7 @@ class myview(ui.View):
 
         self.sliderView = ui.Slider()
         self.sliderView.width = self.width*0.8
-        self.sliderView.center = (self.width * 0.5, self.height * 0.8)
+        self.sliderView.center = (self.width * 0.5, self.height * 0.94)
         self.sliderView.flex = 'WT'
         self.sliderView.value = 0.5
         self.sliderView.continuous = False
