@@ -50,11 +50,15 @@ class BansyoCam():
 		
 		
 class myview(ui.View):
-	def __init__(self):
+	def __init__(self,iPad=False):
 		self.background_color = 'white'
 		self.height = ui.get_screen_size()[1]/2
 		self.width = ui.get_screen_size()[0]/2
 		
+		if iPad == True: #overwrite
+			self.height = ui.get_screen_size()[1]/1.2
+			self.width = ui.get_screen_size()[0]/1.5
+			
 		self.i = 150
 		
 		self.bbimg = BansyoCam()
@@ -62,24 +66,30 @@ class myview(ui.View):
 		self.bbimg.Fastmonolize(self.i)
 		
 		self.imageView = ui.ImageView()
-		self.imageView.width = self.width*0.9
-		self.imageView.center = (self.width * 0.5, self.height * 0.3)
+		self.imageView.width = self.width
+		self.imageView.center = (self.width * 0.5, self.height * 0.5)
 		self.imageView.flex = 'WHB'
 		self.imageView.image = self.bbimg.getImg()
 		self.imageView.content_mode = ui.CONTENT_SCALE_ASPECT_FILL
 		
 		self.sliderView = ui.Slider()
 		self.sliderView.width = self.width*0.8
-		self.sliderView.center = (self.width * 0.5, self.height * 0.94)
+		self.sliderView.center = (self.width * 0.5, self.height * 0.8)
 		self.sliderView.flex = 'WT'
 		self.sliderView.value = 0.5
 		#self.sliderView.continuous = False
 		self.sliderView.action = self.sliderAction
 		
 		self.button = ui.Button(title='Complete')
+		self.button.flex = 'WT'
 		self.button.width = self.width*0.2
-		self.button.center = (self.width * 0.5, self.height * 0.85)
+		self.button.center = (self.width * 0.5, self.height * 0.64)
 		self.button.action = self.button_tapped
+		
+		if iPad == True:
+			self.imageView.center = (self.width * 0.5, self.height * 0.42)
+			self.sliderView.center = (self.width * 0.5, self.height * 0.94)
+			self.button.center = (self.width * 0.5, self.height * 0.87)
 		
 		self.add_subview(self.imageView)
 		self.add_subview(self.sliderView)
@@ -105,7 +115,10 @@ class myview(ui.View):
 		#self.imageView.image.resizable_image(10,10,240,200)
 		
 		
-		
-v = myview()
+if ui.get_screen_size()[0] >= 768:
+	v =myview(iPad =True)
+else:
+	v = myview()
+	
 v.present('sheet')
 
