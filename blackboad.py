@@ -20,7 +20,7 @@ class BBCam():
         self.imgmono = self.img.point(lambda x: 0 if x < i else x)
         self.imgmono = self.imgmono.point(lambda x: 255 if x >= i else x)
 
-    def transpalent(self):
+    def transparent(self):
         temp = self.imgmono.copy()
         temp = ImageOps.invert(temp)
         self.imgmono.putalpha(temp)
@@ -86,7 +86,7 @@ class myview(ui.View):
         self.draw()
 
     def button_tapped(self, sender):
-        self.bbimg.transpalent()
+        self.bbimg.transparent()
         self.bbimg.copy()
         self.close()
 
