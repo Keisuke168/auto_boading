@@ -56,8 +56,8 @@ class BansyoCam():
 class myview(ui.View):
 	def __init__(self,iPad=False):
 		self.background_color = 'white'
-		self.height = ui.get_screen_size()[1]/2
-		self.width = ui.get_screen_size()[0]/2
+		self.height = ui.get_screen_size()[1]
+		self.width = ui.get_screen_size()[0]
 		
 		if iPad == True: #overwrite
 			self.height = ui.get_screen_size()[1]/1.3
@@ -73,14 +73,14 @@ class myview(ui.View):
 		
 		self.imageView = ui.ImageView()
 		self.imageView.width = self.width
-		self.imageView.center = (self.width * 0.5, self.height * 0.5)
+		self.imageView.center = (self.width * 0.5, self.height * 0.3)
 		self.imageView.flex = 'WHB'
 		self.imageView.image = self.bbimg.getImg()
 		self.imageView.content_mode = ui.CONTENT_SCALE_ASPECT_FILL
 		
 		self.sliderView = ui.Slider()
 		self.sliderView.width = self.width*0.8
-		self.sliderView.center = (self.width * 0.5, self.height * 0.8)
+		self.sliderView.center = (self.width * 0.5, self.height * 0.75)
 		self.sliderView.flex = 'WT'
 		self.sliderView.value = 0.5
 		#self.sliderView.continuous = False
@@ -89,21 +89,21 @@ class myview(ui.View):
 		self.button = ui.Button(title='Complete')
 		self.button.flex = 'WT'
 		self.button.width = self.width*0.2
-		self.button.center = (self.width * 0.5, self.height * 0.64)
+		self.button.center = (self.width * 0.5, self.height * 0.65)
 		self.button.action = self.button_tapped
 		
 		self.textfield1 = ui.TextField()
-		self.textfield1.width = self.width* 0.1
+		self.textfield1.width = self.width* 0.15
 		self.textfield1.height = 36
-		self.textfield1.center = (self.width*0.1,self.height*0.70)
+		self.textfield1.center = (self.width*0.1,self.height*0.05)
 		self.textfield1.text = str(self.min)
 		self.textfield1.keyboard_type = ui.KEYBOARD_NUMBERS
 		self.textfield1.action = self.textfield1_edit
 		
 		self.textfield2 = ui.TextField()
-		self.textfield2.width = self.width* 0.1
+		self.textfield2.width = self.width* 0.15
 		self.textfield2.height = 36
-		self.textfield2.center = (self.width*0.9,self.height*0.70)
+		self.textfield2.center = (self.width*0.9,self.height*0.05)
 		self.textfield2.text = str(self.max)
 		self.textfield2.keyboard_type = ui.KEYBOARD_NUMBERS
 		self.textfield2.action = self.textfield2_edit
@@ -111,7 +111,7 @@ class myview(ui.View):
 		self.label = ui.Label()
 		self.label.width = self.width*0.2
 		self.label.height=36
-		self.label.center=(self.width*0.57, self.height*0.7)
+		self.label.center=(self.width*0.57, self.height*0.05)
 		self.label.text = str(self.i)
 		
 		if iPad == True:
