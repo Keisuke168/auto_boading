@@ -6,11 +6,15 @@ import photos
 import clipboard
 from PIL import Image
 from PIL import ImageOps
+from objc_util import *
 
 
 class BansyoCam():
 	def __init__(self):
 		self.img = photos.capture_image()
+		#all_assets = photos.get_assets()
+		#last_asset = all_assets[-1]
+		#self.img = last_asset.get_image()
 		self.img = self.img.convert("L")
 		self.img = ImageOps.invert(self.img)
 		self.miniimg = self.img.copy()
@@ -56,10 +60,12 @@ class myview(ui.View):
 		self.width = ui.get_screen_size()[0]/2
 		
 		if iPad == True: #overwrite
-			self.height = ui.get_screen_size()[1]/1.2
+			self.height = ui.get_screen_size()[1]/1.3
 			self.width = ui.get_screen_size()[0]/1.5
 			
 		self.i = 150
+		self.min = 130
+		self.max = 170
 		
 		self.bbimg = BansyoCam()
 		self.bbimg.monolize(self.i)
@@ -86,33 +92,80 @@ class myview(ui.View):
 		self.button.center = (self.width * 0.5, self.height * 0.64)
 		self.button.action = self.button_tapped
 		
+		self.textfield1 = ui.TextField()
+		self.textfield1.width = self.width* 0.1
+		self.textfield1.height = 36
+		self.textfield1.center = (self.width*0.1,self.height*0.70)
+		self.textfield1.text = str(self.min)
+		self.textfield1.keyboard_type = ui.KEYBOARD_NUMBERS
+		self.textfield1.action = self.textfield1_edit
+		
+		self.textfield2 = ui.TextField()
+		self.textfield2.width = self.width* 0.1
+		self.textfield2.height = 36
+		self.textfield2.center = (self.width*0.9,self.height*0.70)
+		self.textfield2.text = str(self.max)
+		self.textfield2.keyboard_type = ui.KEYBOARD_NUMBERS
+		self.textfield2.action = self.textfield2_edit
+		
+		self.label = ui.Label()
+		self.label.width = self.width*0.2
+		self.label.height=36
+		self.label.center=(self.width*0.57, self.height*0.7)
+		self.label.text = str(self.i)
+		
 		if iPad == True:
 			self.imageView.center = (self.width * 0.5, self.height * 0.42)
-			self.sliderView.center = (self.width * 0.5, self.height * 0.94)
+			self.sliderView.center = (self.width * 0.5, self.height * 0.75)
 			self.button.center = (self.width * 0.5, self.height * 0.87)
+			self.textfield1.center = (self.width*0.1,self.height*0.70)
+			self.textfield2.center = (self.width*0.9,self.height*0.70)
 		
 		self.add_subview(self.imageView)
 		self.add_subview(self.sliderView)
 		self.add_subview(self.button)
+		self.add_subview(self.textfield1)
+		self.add_subview(self.textfield2)
+		self.add_subview(self.label)
 		
 	def sliderAction(self, sender):
-		self.i = sender.value * 40 + 130
+		self.i = sender.value * (self.max - self.min) + self.min
 		self.bbimg.Fastmonolize(self.i)
-		print(self.i)
+		#print(self.i)
 		self.draw()
-		
+
 	def button_tapped(self, sender):
 		self.bbimg.monolize(self.i)
 		self.bbimg.transpalent()
 		self.bbimg.copy()
 		ok = ui.Button(title='OK')
+		
 		dialogs.alert('Copied!','','OK',hide_cancel_button=True)
 		self.close()
+	
+	def change_value(self):
+		if self.i >= self.max:
+			self.sliderView.value = 1.0
+		elif self.i <= self.min:
+			self.sliderView.value = 0.0
+		else:
+			self.sliderView.value = (self.i - self.min)/(self.max - self.min)
+			
+		
+	def textfield1_edit(self,sender):
+		self.min = int(self.textfield1.text)
+		self.change_value()
+		
+	def textfield2_edit(self,sender):
+		self.max = int(self.textfield2.text)
+		self.change_value()
 		
 		
 	def draw(self):
 		self.imageView.image = self.bbimg.getminiImg()
-		#self.imageView.image.resizable_image(10,10,240,200)
+		self.label.text = str(self.i)
+		
+#self.imageView.image.resizable_image(10,10,240,200)
 		
 		
 if ui.get_screen_size()[0] >= 768:
