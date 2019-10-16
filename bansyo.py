@@ -21,18 +21,17 @@ UIImage = ObjCClass('UIImage')
 
 class BansyoCam():
     def __init__(self):
-
-        #self.filename = camera_scanner.take_photo()
-        ##self.filename = camera_scanner.pick_photo()
-        #self.ci_img = camera_scanner.load_ci_image(self.filename)
-
         cam = muon.camera(format='CIImage', save_to_album=False,
                           return_Image=True, auto_close=True)
         cam.launch()
 
-        self.ci_img = cam.getData()
-        corners = camera_scanner.find_corners(self.ci_img)
-        self.out_img = camera_scanner.apply_perspective(corners, self.ci_img)
+        ci_img = cam.getData()
+        corners = camera_scanner.find_corners(ci_img)
+        try:
+            self.out_img = camera_scanner.apply_perspective(corners, ci_img)
+        except:
+            print('No box founded')
+            self.out_img = ci_img
 
         uiImg = UIImage.imageWithCIImage_scale_orientation_(
             self.out_img, 1.0, 3)
@@ -43,9 +42,9 @@ class BansyoCam():
         data.writeToFile_atomically_(temp_path, True)
 
         self.img = Image.open(temp_path)
-        # all_assets = photos.get_assets()
-        # last_asset = all_assets[-1]
-        # self.img = last_asset.get_image()
+        #all_assets = photos.get_assets()
+        #last_asset = all_assets[-1]
+        #self.img = last_asset.get_image()
         self.img = self.img.convert("L")
         self.img = ImageOps.invert(self.img)
         self.miniimg = self.img.copy()
