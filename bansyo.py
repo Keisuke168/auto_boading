@@ -7,20 +7,37 @@ import clipboard
 from PIL import Image
 from PIL import ImageOps
 from objc_util import *
-import ci
-import Camera
+import camera_scanner
+import platform
+import tempfile
+import datetime
+import os
+
+from Pythonista_Silent_camera import muon
+
+CIImage = ObjCClass('CIImage')
+UIImage = ObjCClass('UIImage')
 
 
 class BansyoCam():
     def __init__(self):
-        self.filename = Camera.take_photo()
-        #self.filename = Camera.pick_photo()
-        self.ci_img = Camera.load_ci_image(self.filename)
-        self.corners = Camera.find_corners(self.ci_img)
-        self.out_img = Camera.apply_perspective(self.corners, self.ci_img)
-        ciclass = ci.CImage(self.out_img)
-        bool = ciclass.save_jpeg()
-        self.img = Image.open('output.jpg')
+        cam = muon.camera(format='CIImage', save_to_album=False,
+                          return_Image=True, auto_close=True)
+        cam.launch()
+
+        self.ci_img = cam.getData()
+        corners = camera_scanner.find_corners(self.ci_img)
+        self.out_img = camera_scanner.apply_perspective(corners, self.ci_img)
+
+        uiImg = UIImage.imageWithCIImage_scale_orientation_(
+            self.out_img, 1.0, 3)
+        data = ObjCInstance(c.UIImageJPEGRepresentation(uiImg.ptr, 0.8))
+        today = datetime.datetime.now().strftime("%Y%m%d-%H%M")
+        temp_path = os.path.join(
+            tempfile.gettempdir(), '{0}.{1}'.format(today, 'jpg'))
+        data.writeToFile_atomically_(temp_path, True)
+
+        self.img = Image.open(temp_path)
         #all_assets = photos.get_assets()
         #last_asset = all_assets[-1]
         #self.img = last_asset.get_image()
@@ -65,18 +82,18 @@ class BansyoCam():
 
 
 class myview(ui.View):
-    def __init__(self, iPad=False):
+    def __init__(self):
         self.background_color = 'white'
         self.height = ui.get_screen_size()[1]
         self.width = ui.get_screen_size()[0]
 
-        if iPad == True:  # overwrite
+        if 'iPad' in platform.machine():  # overwrite
             self.height = ui.get_screen_size()[1]/1.3
             self.width = ui.get_screen_size()[0]/1.5
 
-        self.i = 150
-        self.min = 130
-        self.max = 170
+        self.min = 80
+        self.max = 130
+        self.i = (self.min+self.max)/2
 
         self.bbimg = BansyoCam()
         self.bbimg.monolize(self.i)
@@ -94,7 +111,6 @@ class myview(ui.View):
         self.sliderView.center = (self.width * 0.5, self.height * 0.75)
         self.sliderView.flex = 'WT'
         self.sliderView.value = 0.5
-        #self.sliderView.continuous = False
         self.sliderView.action = self.sliderAction
 
         self.button = ui.Button(title='Complete')
@@ -125,7 +141,7 @@ class myview(ui.View):
         self.label.center = (self.width*0.57, self.height*0.05)
         self.label.text = str(self.i)
 
-        if iPad == True:
+        if 'iPad' in platform.machine():  # overwrite
             self.imageView.center = (self.width * 0.5, self.height * 0.42)
             self.sliderView.center = (self.width * 0.5, self.height * 0.75)
             self.button.center = (self.width * 0.5, self.height * 0.87)
@@ -178,9 +194,5 @@ class myview(ui.View):
 # self.imageView.image.resizable_image(10,10,240,200)
 
 
-if ui.get_screen_size()[0] >= 768:
-    v = myview(iPad=True)
-else:
-    v = myview()
-
+v = myview()
 v.present('sheet')
