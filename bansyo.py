@@ -7,7 +7,6 @@ import clipboard
 from PIL import Image
 from PIL import ImageOps
 from objc_util import *
-import camera_scanner
 import platform
 import tempfile
 import datetime
@@ -17,6 +16,9 @@ from Pythonista_Silent_camera import muon
 
 CIImage = ObjCClass('CIImage')
 UIImage = ObjCClass('UIImage')
+CIDetector = ObjCClass('CIDetector')
+CIFilter = ObjCClass('CIFilter')
+CIVector = ObjCClass('CIVector')
 
 
 class BansyoCam():
@@ -26,9 +28,9 @@ class BansyoCam():
         cam.launch()
 
         ci_img = cam.getData()
-        corners = camera_scanner.find_corners(ci_img)
+        corners = self.find_corners(ci_img)
         try:
-            self.out_img = camera_scanner.apply_perspective(corners, ci_img)
+            self.out_img = self.apply_perspective(corners, ci_img)
         except:
             print('No box founded')
             self.out_img = ci_img
@@ -83,6 +85,27 @@ class BansyoCam():
             imgOut = ui.Image.from_data(bIO.getvalue())
         del bIO
         return imgOut
+
+    def find_corners(self, ci_img):
+        d = CIDetector.detectorOfType_context_options_(
+            'CIDetectorTypeRectangle', None, None)
+        rects = d.featuresInImage_(ci_img)
+        if rects.count() == 0:
+            return None
+        r = rects.firstObject()
+        return (r.topRight(), r.bottomRight(), r.topLeft(), r.bottomLeft())
+
+    def apply_perspective(self, corners, ci_img):
+        tr, br, tl, bl = [CIVector.vectorWithX_Y_(c.x, c.y) for c in corners]
+        filter = CIFilter.filterWithName_('CIPerspectiveCorrection')
+        filter.setDefaults()
+        filter.setValue_forKey_(ci_img, 'inputImage')
+        filter.setValue_forKey_(tr, 'inputTopRight')
+        filter.setValue_forKey_(tl, 'inputTopLeft')
+        filter.setValue_forKey_(br, 'inputBottomRight')
+        filter.setValue_forKey_(bl, 'inputBottomLeft')
+        out_img = filter.valueForKey_('outputImage')
+        return out_img
 
 
 class myview(ui.View):
