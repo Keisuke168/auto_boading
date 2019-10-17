@@ -23,8 +23,8 @@ CIVector = ObjCClass('CIVector')
 
 class BansyoCam():
     def __init__(self):
-        cam = muon.camera(format='CIImage', save_to_album=False,
-                          return_Image=True, auto_close=True)
+        cam = muon.camera(format='CIImage',
+                          save_to_album=False, auto_close=True)
         cam.launch()
 
         ci_img = cam.getData()
