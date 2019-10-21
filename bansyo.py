@@ -36,7 +36,7 @@ class BansyoCam():
             self.out_img = ci_img
 
         uiImg = UIImage.imageWithCIImage_scale_orientation_(
-            self.out_img, 1.0, 3)
+            self.out_img, 1.0, 0)
         data = ObjCInstance(c.UIImageJPEGRepresentation(uiImg.ptr, 0.8))
         today = datetime.datetime.now().strftime("%Y%m%d-%H%M")
         temp_path = os.path.join(
